@@ -40,8 +40,7 @@ public class GitHubTest {
         driver.quit();
         driver.get("https://github.com/TanyaChas/Les_1/blob/master/Student.java");
         driver.quit();
-        driver.get("https://github.com/TanyaChas/Les_1/blob/master/Student1.java");
-        driver.quit();
+
     }
 
     public static void main(String[] args) {
