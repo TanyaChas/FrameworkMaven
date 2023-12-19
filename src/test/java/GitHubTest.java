@@ -1,49 +1,88 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.example.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GitHubTest {
-    private WebDriver driver;            // тестовий клас
-    public void gitHubTest(){           // тестовий метод
-        WebElement h1;
-        WebElement img;
-        WebElement ul;
-        WebElement text;
-        WebElement title = driver.findElement(By.xpath(//title));
-        WebElement h1 = driver.findElement(By.xpath(//h1[1]));
-        WebElement img = driver.findElement(By.xpath(//img[1]));
-        WebElement ul = driver.findElement(By.xpath(//ul li:first-child(2)));
-        WebElement text = driver.findElement(By.xpath(//input[type="text"]));
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-        System.setProperty("webdriver.chrome.driver"  , "C:\\Users\\User\\IdeaProjects\\FrameworkMaven\\src\\main\\resources\\drivers\\chromedriver-win64\\chromedriver.exe");
 
-        //якщо не запустилося
-        ChromeOptions option = new ChromeOptions();
-        option.addArguments("--remote-allow-origins=*");
-
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait (5, TimeUnit.SECONDS);
-        driver.get("https://github.com");
-        driver.quit();
-        driver.get("https://github.com/TanyaChas/Les_1/blob/master/HW1.java");
-        driver.quit();
-        driver.get("https://github.com/TanyaChas/Les_1/blob/master/HW3.java");
-        driver.quit();
-        driver.get("https://github.com/TanyaChas/Les_1/blob/master/HW3_Star.java");
-        driver.quit();
-        driver.get("https://github.com/TanyaChas/Les_1/blob/master/HomeWork2.java");
-        driver.quit();
-        driver.get("https://github.com/TanyaChas/Les_1/blob/master/Student.java");
-        driver.quit();
+public class GitHubTest extends BaseTest {
+    @Test
+    public void validateLogoOnTheLoginPageIsDisplayed() {
+        HomePage homePage = new HomePage(driver);
+        assertTrue(homePage.goToLoginPage().getLogo().isDisplayed(), "Logo is not displayed");
+        Logger logger = LogManager.getLogger();
+        logger.info("validateLogoOnTheLoginPageIsDisplayed");
+    }
+    @Test
+    public void validateAnUsedCan() {
+        HomePage homePage = new HomePage(driver);
+        assertTrue(homePage.goToLoginPage().getLogo().isDisplayed(), "Logo is not displayed");
+        Logger logger = LogManager.getLogger();
+        logger.info("validateAnUsedCan");
+    }
+    @Test
+    public void checkLogoOnTheLoginPage() {
+        HomePage homePage = new HomePage(driver);
+        assertTrue(homePage.goToLoginPage().getLogo().isDisplayed(), "Logo is not displayed");
+        Logger logger = LogManager.getLogger();
+        logger.info("checkLogoOnTheLoginPage");
     }
 
-    public static void main(String[] args) {
-        GitHubTest gitHubTest =new GitHubTest();
-        gitHubTest.gitHubTest();
+    @Test
+    public void checkLoginIsSuccessful() {
+        HomePage home = new HomePage(driver);
+        home.goToLoginPage().loginSuccessful("test9874@ukr.net", "test9874@ukr.net");
+        MainPage mainPage = new MainPage(driver);
+        mainPage.getLogoOnTheMainPage();
+        Assertions.assertTrue(mainPage.getLogoOnTheMainPage().isDisplayed());
+        Logger logger = LogManager.getLogger();
+        logger.info("checkLoginIsSuccessful");
+    }
+
+    @Test
+    public void checkFailedLogin() {
+        HomePage homePage = new HomePage(driver);
+        homePage.goToLoginPage();
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.loginFailed("1test9874@ukr.net", "test9874@ukr.net");
+        loginPage.validateErrorMessage("Incorrect username or password.");
+        Logger logger = LogManager.getLogger();
+        logger.info("checkFailedLogin");
+    }
+
+    @Test
+    public void checkLogOutFromGitHub() {
+        String expectedQuestionText = "Are you sure you want to sign out?";
+        HomePage homePage = new HomePage(driver);
+        homePage.goToLoginPage().loginSuccessful("test9874@ukr.net", "test9874@ukr.net");
+        MainPage mainPage = new MainPage(driver);
+        mainPage.goToProfileForm();
+        ProfileForm profileForm = new ProfileForm(driver);
+        Assertions.assertEquals(expectedQuestionText, profileForm.signOutFromGitHub().getQuestionElement().getText());
+        Logger logger = LogManager.getLogger();
+        logger.info("checkLogOutFromGitHub");
+    }
+
+    @Test
+    public void checkRepositoriesList() {
+        Logger logger = LogManager.getLogger();
+        List<String> expReposList = new ArrayList<>();
+        expReposList.add("test2");
+        expReposList.add("test1");
+        expReposList.add("test");
+
+        HomePage homePage = new HomePage(driver);
+        homePage.goToLoginPage().loginSuccessful("test9874@ukr.net", "test9874@ukr.net");
+        MainPage mainPage = new MainPage(driver);
+        mainPage.goToProfileForm().goToRepositoriesPage();
+        RepositoriesPage repositoriesPage = new RepositoriesPage(driver);
+        Assertions.assertEquals(expReposList, repositoriesPage.getRepositories());
+        logger.info("checkRepositoriesList");
     }
 }
